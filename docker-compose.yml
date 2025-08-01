@@ -110,6 +110,7 @@
       networks:
         - rinha-back
         - payment-processor
+      restart: unless-stopped
 
   volumes:
     pgdata:
