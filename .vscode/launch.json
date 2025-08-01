@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+    
+        {
+            "name": "Launch Package",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${fileDirname}",
+            "env": {
+        "DB_HOST": "localhost",
+        "DB_USER": "admin",
+        "DB_PASSWORD": "admin",
+        "DB_NAME": "rinha",
+        "SCREENING_BUFFER": "20",
+        "SCREENING_WORKERS": "4",
+        "HIGH_PRIORUTY_BUFFER": "10",
+        "HIGH_PRIORITY_WORKERS": "5",
+        "LOW_PRIORITY_BUFFER": "20",
+        "LOW_PRIORITY_WORKERS": "10",
+        "LOW_WAITING_BUFFER": "30",
+        "LOW_WAITING_WORKERS": "20",
+        "HIGH_WAITING_BUFFER": "20",
+        "HIGH_WAITING_WORKERS": "10",
+        "DEFAULT_URL": "localhost:8001",
+        "FALLBACK_URL": "localhost:8002"
+      },
+        }
+    ]
+}
