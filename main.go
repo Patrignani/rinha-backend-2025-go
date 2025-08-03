@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"runtime/debug"
 	"time"
 
 	"github.com/Patrignani/patrignani-rinha-backend-go/internal/repositories"
@@ -16,11 +17,19 @@ import (
 )
 
 func main() {
+
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Panic capturado: %v\nStack trace:\n%s", r, debug.Stack())
+			panic(r)
+		}
+	}()
+
 	ctx := context.Background()
 
 	pg, err := storage.NewPostgresClient(ctx, getPostgresDSN())
 	if err != nil {
-		panic("erro ao iniciar o banco")
+		panic(fmt.Errorf("erro ao iniciar o banco: %w", err))
 	}
 	defer pg.Close()
 
@@ -49,7 +58,7 @@ func main() {
 		gnet.WithMulticore(true),
 		gnet.WithLogger(nil),
 		gnet.WithTCPNoDelay(gnet.TCPNoDelay)); err != nil {
-		panic(err)
+		panic(fmt.Errorf("gnet.Run falhou: %w", err))
 	}
 
 }
