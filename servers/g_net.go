@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Patrignani/patrignani-rinha-backend-go/internal/services"
+	"github.com/Patrignani/patrignani-rinha-backend-go/internal/workers"
 	"github.com/panjf2000/gnet/v2"
 )
 
@@ -25,11 +26,12 @@ var (
 type GNetServer struct {
 	*gnet.BuiltinEventEngine
 	paymentService *services.PaymentService
+	q              *workers.QueueWorker
 	keepAlive      bool
 }
 
-func NewGNetServer(paymentService *services.PaymentService, keepAlive bool) *GNetServer {
-	return &GNetServer{paymentService: paymentService, keepAlive: keepAlive}
+func NewGNetServer(paymentService *services.PaymentService, keepAlive bool, q *workers.QueueWorker) *GNetServer {
+	return &GNetServer{paymentService: paymentService, keepAlive: keepAlive, q: q}
 }
 
 func writeResponse(c gnet.Conn, statusCode int, body []byte, keepAlive bool) {
@@ -267,7 +269,8 @@ func (s *GNetServer) OnTraffic(c gnet.Conn) gnet.Action {
 			}
 
 			sendWithBlockingWrite(c, s.keepAlive)
-			go s.paymentService.RunQueue(context.TODO(), body)
+			s.q.Send(body)
+			//go s.paymentService.RunQueue(context.TODO(), body)
 
 			if !s.keepAlive {
 				return gnet.Close

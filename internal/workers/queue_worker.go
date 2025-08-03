@@ -49,36 +49,63 @@ func (q *QueueWorker) RetryFallback() {
 }
 
 func (q *QueueWorker) Consume(ctx context.Context, workers int, process func(context.Context, []byte) error) {
-	//var wg sync.WaitGroup
-	sem := make(chan struct{}, workers)
+	var wg sync.WaitGroup
 
-	for {
-		select {
-		case <-ctx.Done():
-			//wg.Wait()
-			close(q.channel)
-			fmt.Println("Consumo encerrado")
-			return
-		case msg, ok := <-q.channel:
-			if !ok {
-				//wg.Wait()
-				fmt.Println("Canal fechado e todas mensagens processadas")
-				return
-			}
-
-			sem <- struct{}{}
-			//wg.Add(1)
-
-			go func(m []byte) {
-				//defer wg.Done()
-				defer func() { <-sem }()
-				if err := process(ctx, m); err != nil {
-					fmt.Printf("Erro ao processar mensagem %v\n", err)
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case msg, ok := <-q.channel:
+					if !ok {
+						return
+					}
+					if err := process(ctx, msg); err != nil {
+						fmt.Printf("Erro ao processar mensagem %v\n", err)
+					}
 				}
-			}(msg)
-		}
+			}
+		}()
 	}
+
+	<-ctx.Done()
+	wg.Wait()
 }
+
+// func (q *QueueWorker) Consume(ctx context.Context, workers int, process func(context.Context, []byte) error) {
+// 	//var wg sync.WaitGroup
+// 	sem := make(chan struct{}, workers)
+
+// 	for {
+// 		select {
+// 		case <-ctx.Done():
+// 			//wg.Wait()
+// 			close(q.channel)
+// 			fmt.Println("Consumo encerrado")
+// 			return
+// 		case msg, ok := <-q.channel:
+// 			if !ok {
+// 				//wg.Wait()
+// 				fmt.Println("Canal fechado e todas mensagens processadas")
+// 				return
+// 			}
+
+// 			sem <- struct{}{}
+// 			//wg.Add(1)
+
+// 			go func(m []byte) {
+// 				//defer wg.Done()
+// 				defer func() { <-sem }()
+// 				if err := process(ctx, m); err != nil {
+// 					fmt.Printf("Erro ao processar mensagem %v\n", err)
+// 				}
+// 			}(msg)
+// 		}
+// 	}
+// }
 
 func (q *QueueWorker) CountFallback() int {
 	return len(q.fallback)

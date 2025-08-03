@@ -3,6 +3,7 @@
       hostname: api1
       container_name: api1
       image: patrignani/rinha-2025:latest
+      #build: .
       ports:
         - "8006:8080"
       depends_on:
@@ -12,9 +13,8 @@
         DB_USER: admin
         DB_PASSWORD: admin
         DB_NAME: rinha
-        REDIS: redis:6379
         QUEUE_BUFFER: 50000
-        QUEUE_WORKERS: 15
+        QUEUE_WORKERS: 200
         DEFAULT_URL: payment-processor-default:8080
         FALLBACK_URL: payment-processor-fallback:8080
         ATTEMPS_RETRY: 3
@@ -33,6 +33,7 @@
       hostname: api2
       container_name: api2
       image: patrignani/rinha-2025:latest
+      #build: .
       ports:
         - "8005:8080"
       depends_on:
@@ -42,9 +43,8 @@
         DB_USER: admin
         DB_PASSWORD: admin
         DB_NAME: rinha
-        REDIS: redis:6379
         QUEUE_BUFFER: 50000
-        QUEUE_WORKERS: 15
+        QUEUE_WORKERS: 200
         DEFAULT_URL: payment-processor-default:8080
         FALLBACK_URL: payment-processor-fallback:8080
         ATTEMPS_RETRY: 3
