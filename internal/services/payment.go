@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 	"unsafe"
 
@@ -42,6 +43,7 @@ func NewPaymentService(repo *repositories.PaymentRepository, queue *workers.Queu
 }
 
 func (p *PaymentService) RunQueue(ctx context.Context, msg []byte) error {
+	log.Printf("RunQueue run")
 	var parser fastjson.Parser
 	v, err := parser.ParseBytes(msg)
 	if err != nil {
@@ -74,10 +76,12 @@ func (p *PaymentService) RunQueue(ctx context.Context, msg []byte) error {
 
 	if err := p.ExecuteDefault(ctx, correlationId, amount, createdAt); err != nil {
 		if err := p.ExecuteFallback(ctx, correlationId, amount, createdAt); err != nil {
+			log.Printf("RunQueue Enqueue")
 			p.queue.Send(msg)
 		}
 	}
 
+	log.Printf("RunQueue FIM")
 	return nil
 }
 
@@ -167,5 +171,6 @@ func b2s(b []byte) string {
 }
 
 func (p *PaymentService) GetPaymentSummary(ctx context.Context, from, to *time.Time) (*models.SummaryResponse, error) {
+	log.Printf("Server RunQueue GetPaymentSummary")
 	return p.repo.GetPaymentSummary(ctx, from, to)
 }

@@ -29,6 +29,7 @@ func main() {
 
 	pg, err := storage.NewPostgresClient(ctx, getPostgresDSN())
 	if err != nil {
+		log.Printf("Caiu panic Postgres")
 		panic(fmt.Errorf("erro ao iniciar o banco: %w", err))
 	}
 	defer pg.Close()
@@ -56,10 +57,13 @@ func main() {
 
 	if err := gnet.Run(server, fmt.Sprintf("tcp://:%s", config.Env.StartPort),
 		gnet.WithMulticore(true),
-		gnet.WithLogger(nil),
+		//	gnet.WithLogger(nil),
 		gnet.WithTCPNoDelay(gnet.TCPNoDelay)); err != nil {
+		log.Printf("Caiu panic Gnet")
 		panic(fmt.Errorf("gnet.Run falhou: %w", err))
 	}
+
+	log.Printf("RUN GNET CONCLUIDO")
 
 }
 

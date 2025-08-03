@@ -3,6 +3,7 @@ package workers
 import (
 	"context"
 	"fmt"
+	"log"
 	"sync"
 )
 
@@ -50,7 +51,7 @@ func (q *QueueWorker) RetryFallback() {
 
 func (q *QueueWorker) Consume(ctx context.Context, workers int, process func(context.Context, []byte) error) {
 	var wg sync.WaitGroup
-
+	log.Printf("Consume queue start")
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
 		go func() {
@@ -63,6 +64,7 @@ func (q *QueueWorker) Consume(ctx context.Context, workers int, process func(con
 					if !ok {
 						return
 					}
+					log.Printf("Consume queue run")
 					if err := process(ctx, msg); err != nil {
 						fmt.Printf("Erro ao processar mensagem %v\n", err)
 					}
