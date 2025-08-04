@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"sync"
@@ -119,7 +118,6 @@ func parseQueryString(qs []byte) (map[string]string, bool) {
 
 func (s *GNetServer) OnTraffic(c gnet.Conn) gnet.Action {
 	for {
-		log.Printf("OnTraffic run")
 		buf, _ := c.Peek(-1)
 		if len(buf) == 0 {
 			return gnet.None
@@ -179,9 +177,9 @@ func (s *GNetServer) OnTraffic(c gnet.Conn) gnet.Action {
 		if method == "GET" {
 			partsPath := bytes.SplitN(path, []byte("?"), 2)
 			route := string(partsPath[0])
-			log.Printf("method GET")
+
 			if route == "/payments-summary" {
-				log.Printf("method GET /payments-summary")
+
 				if len(partsPath) < 2 {
 					writeResponse(c, 400, []byte(`{"error":"missing query"}`), s.keepAlive)
 					if !s.keepAlive {
@@ -262,9 +260,7 @@ func (s *GNetServer) OnTraffic(c gnet.Conn) gnet.Action {
 			}
 
 		} else if method == "POST" {
-			log.Printf("method post")
 			if !bytes.Equal(path, []byte("/payments")) {
-				log.Printf("method post /payments")
 				writeResponse(c, 404, []byte(`{"error":"not found"}`), s.keepAlive)
 				if !s.keepAlive {
 					return gnet.Close
@@ -273,7 +269,6 @@ func (s *GNetServer) OnTraffic(c gnet.Conn) gnet.Action {
 			}
 
 			sendWithBlockingWrite(c, s.keepAlive)
-			log.Printf("SEND ok")
 			s.q.Send(body)
 			//go s.paymentService.RunQueue(context.TODO(), body)
 
@@ -291,11 +286,6 @@ func (s *GNetServer) OnTraffic(c gnet.Conn) gnet.Action {
 }
 
 func (s *GNetServer) OnOpened(c gnet.Conn) (out []byte, action gnet.Action) {
-	err := c.SetDeadline(time.Now().Add(60 * time.Second))
-	if err != nil {
-		log.Printf("OnOpened Error %v", err)
-	}
-
-	log.Printf("OnOpened ok")
+	_ = c.SetDeadline(time.Now().Add(60 * time.Second))
 	return nil, gnet.None
 }

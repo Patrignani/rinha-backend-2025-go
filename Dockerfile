@@ -7,15 +7,18 @@ RUN apk add --no-cache git
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o main main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o main
 
-# Stage 2: Runtime (Alpine)
-FROM alpine:latest
+# Stage 2: Runtime
+FROM gcr.io/distroless/static:nonroot
 
 WORKDIR /app
-COPY --from=builder /app/main .
-RUN chmod +x main
 
-EXPOSE 8080
+COPY --from=builder /app/main .
+
+ENV PORT=9999
+EXPOSE 9999
+
+USER nonroot
 
 CMD ["./main"]

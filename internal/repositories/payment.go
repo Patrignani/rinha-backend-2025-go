@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/Patrignani/patrignani-rinha-backend-go/pkg/models"
@@ -35,7 +34,6 @@ func (p *PaymentRepository) Insert(ctx context.Context, payment models.PaymentDb
 }
 
 func (p *PaymentRepository) GetPaymentSummary(ctx context.Context, from, to *time.Time) (*models.SummaryResponse, error) {
-	log.Printf("Repo  GetPaymentSummary")
 	query := `
 		SELECT 
 			fallback,
@@ -79,7 +77,6 @@ func (p *PaymentRepository) GetPaymentSummary(ctx context.Context, from, to *tim
 			}
 		}
 	}
-	log.Printf("Repo  GetPaymentSummary FIM")
 
 	return &summary, nil
 }
