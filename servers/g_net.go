@@ -286,8 +286,8 @@ func (s *GNetServer) OnTraffic(c gnet.Conn) gnet.Action {
 			}
 
 			sendWithBlockingWrite(c, s.keepAlive)
-			s.q.Send(body)
-			//go s.paymentService.RunQueue(context.TODO(), body)
+			//s.q.Send(body)
+			go s.paymentService.RunQueue(context.Background(), body)
 
 			if !s.keepAlive {
 				return gnet.Close

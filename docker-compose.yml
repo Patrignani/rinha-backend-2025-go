@@ -14,7 +14,7 @@
         DB_PASSWORD: admin
         DB_NAME: rinha
         QUEUE_BUFFER: 50000
-        QUEUE_WORKERS: 200
+        QUEUE_WORKERS: 20
         DEFAULT_URL: payment-processor-default:8080
         FALLBACK_URL: payment-processor-fallback:8080
         ATTEMPS_RETRY: 3
@@ -44,7 +44,7 @@
         DB_PASSWORD: admin
         DB_NAME: rinha
         QUEUE_BUFFER: 50000
-        QUEUE_WORKERS: 200
+        QUEUE_WORKERS: 20
         DEFAULT_URL: payment-processor-default:8080
         FALLBACK_URL: payment-processor-fallback:8080
         ATTEMPS_RETRY: 3
