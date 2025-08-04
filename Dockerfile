@@ -16,8 +16,7 @@ WORKDIR /app
 
 COPY --from=builder /app/main .
 
-ENV PORT=9999
-EXPOSE 9999
+EXPOSE 8080
 
 USER nonroot
 

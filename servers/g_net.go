@@ -103,9 +103,6 @@ func readHeaders(data []byte) (headers map[string][]byte, rest []byte, ok bool) 
 func parseQueryString(qs []byte) (map[string]string, bool) {
 	result := make(map[string]string)
 	pairs := bytes.Split(qs, []byte("&"))
-	if len(pairs) != 2 {
-		return nil, false
-	}
 	for _, p := range pairs {
 		kv := bytes.SplitN(p, []byte("="), 2)
 		if len(kv) != 2 {
@@ -181,7 +178,27 @@ func (s *GNetServer) OnTraffic(c gnet.Conn) gnet.Action {
 			if route == "/payments-summary" {
 
 				if len(partsPath) < 2 {
-					writeResponse(c, 400, []byte(`{"error":"missing query"}`), s.keepAlive)
+
+					v, err := s.paymentService.GetPaymentSummary(context.TODO(), nil, nil)
+
+					if err != nil {
+						writeResponse(c, 400, []byte(fmt.Sprintf(`{"error":"%v"}`, err)), s.keepAlive)
+						if !s.keepAlive {
+							return gnet.Close
+						}
+						continue
+					}
+
+					jsonBytes, err := v.MarshalJSON()
+					if err != nil {
+						writeResponse(c, 400, []byte(fmt.Sprintf(`{"error":"%v"}`, err)), s.keepAlive)
+						if !s.keepAlive {
+							return gnet.Close
+						}
+						continue
+					}
+
+					writeResponse(c, 200, []byte(jsonBytes), s.keepAlive)
 					if !s.keepAlive {
 						return gnet.Close
 					}
