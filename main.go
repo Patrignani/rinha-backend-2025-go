@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"runtime/debug"
+	"time"
 
 	"github.com/Patrignani/patrignani-rinha-backend-go/internal/repositories"
 	"github.com/Patrignani/patrignani-rinha-backend-go/internal/services"
@@ -37,14 +38,29 @@ func main() {
 	paymentService := services.NewPaymentService(paymentRepo, queue)
 
 	go queue.Consume(ctx, config.Env.Queue.Workers, paymentService.RunQueue)
-	// workers.StartWorker(ctx, "Retry", 300*time.Millisecond, func(ctx context.Context) error {
-	// 	if queue.CountFallback() > 0 {
-	// 		queue.RetryFallback()
-	// 	}
-	// 	return nil
-	// })
 
-	server := servers.NewGNetServer(paymentService, true, queue)
+	var paymentHandler func(ctx context.Context, body []byte)
+
+	if config.Env.UseQueueInPost {
+		log.Print("____queue.Send____")
+		workers.StartWorker(ctx, "Retry", 300*time.Millisecond, func(ctx context.Context) error {
+			if queue.CountFallback() > 0 {
+				queue.RetryFallback()
+			}
+			return nil
+		})
+
+		paymentHandler = func(ctx context.Context, body []byte) {
+			queue.Send(body)
+		}
+	} else {
+		log.Print("____go paymentService.RunQueue____")
+		paymentHandler = func(ctx context.Context, body []byte) {
+			go paymentService.RunQueue(ctx, body)
+		}
+	}
+
+	server := servers.NewGNetServer(paymentService, true, paymentHandler)
 
 	log.Printf(`
 	╔════════════════════════════════════════════════════╗
