@@ -10,7 +10,7 @@ type Environment struct {
 	FallbackUrl    string        `env:"FALLBACK_URL"`
 	AttempsRetry   int           `env:"ATTEMPS_RETRY"`
 	TimeAttemps    time.Duration `env:"TIME_ATTEMPS"`
-	UseQueueInPost bool          `env:"USE_QUEUE_IN_POST"`
+	UseQueueInPost bool          `env:"USE_QUEUE_IN_POST,default=false"`
 }
 
 type Queue struct {
